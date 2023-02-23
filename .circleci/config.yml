@@ -19,8 +19,9 @@ jobs:
     steps:
       - checkout
       - run:
-          name: "Say hello"
-          command: "echo Hello, World!"
+          name: "Say hello to my Name"
+          command: |
+            echo Hello, World meet - $MY_NAME!
 
   print_hello:
     docker:
