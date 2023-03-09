@@ -2,10 +2,6 @@
 # See: https://circleci.com/docs/2.0/configuration-reference
 version: 2.1
 
-orbs:
-  # Declare a dependency on the welcome-orb
-  welcome: circleci/welcome-orb@0.4.1
-    
 # Define a job to be invoked later in a workflow.
 # See: https://circleci.com/docs/2.0/configuration-reference/#jobs
 jobs:
@@ -23,34 +19,24 @@ jobs:
           command: |
             echo Hello, World meet - $MY_NAME!
 
-  print_hello:
+  create_infrastructure: 
     docker:
-      - image: circleci/node:13.8.0
+      - image: amazon/aws-cli
     steps:
+      - checkout
       - run:
-          name: "Print Hello"
-          command: "echo Hello"
-
-  print_world:
-    docker:
-      - image: circleci/node:13.8.0
-    steps:
-      - run:
-          name: "Print World"
-          command: "echo World"
+          name: Create Cloudformation Stack
+          command: |
+            aws cloudformation deploy \
+              --template-file infra/template.yml \
+              --stack-name infra-${CIRCLE_WORKFLOW_ID:0:5} \
+              --region us-east-1
   
-
 # Invoke jobs via workflows
 # See: https://circleci.com/docs/2.0/configuration-reference/#workflows
 workflows:
-  say-hello-workflow:
+  myWorkflow:
     jobs:
       - say-hello
+      - create_infrastructure
 
-  welcome:
-    jobs:
-      - welcome/run
-      - print_hello
-      - print_world:
-          requires:
-            - print_hello
